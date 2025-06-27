@@ -1,63 +1,40 @@
 
-#include<sys/wait.h>
-#include<unistd.h>
-#include<stdlib.h>
-#include<stdio.h>
-#include<string.h>
+#include "shell.h"
 
-#define STDIN_BUFFER_SIZE 1024
-#define SH_SPLIT_LINE_BUFSIZE 64
-#define SH_SPLIT_LINE_DELIMETER " \n\t\r\a"
+const char* HOME_DIR(){
+    return getenv(ENV_HOME);
+}
 
-
-void loop_shell(void);
-char* sh_read_line(void);
-char **sh_split_line(char* line);
-int sh_execute(char** arguments);
-int sh_launch(char **args);
-
-// function declarations
-int sh_cd(char** args);
-int sh_help(char** args);
-int sh_exit(char** args);
-
-/*
- * Builtin commands
-*/
 char* builtin_cmd[] = {
     "cd",
     "help",
     "exit"
 };
 
+const size_t sh_num_of_builtins = (sizeof(builtin_cmd)/sizeof(char*));
 int (*builtin_func[]) (char **) = {
     &sh_cd,
     &sh_help,
     &sh_exit
 };
 
-int sh_num_of_builtins()
-{
-
-    return sizeof(builtin_cmd) / sizeof(char*);
-}
-
-int main(int argc, char** argv)
-{
-    //loop until the end
-    loop_shell();
-
-    return EXIT_SUCCESS;
-}
-
 int sh_cd(char **args)
 {
-    if(args[1] == NULL){
-        fprintf(stderr, "Penguin: no command found\nExpected command is \"cd\"\n");
-    } else{
-        if(chdir(args[1]) != 0){
-            perror("Penguin");
+    char path[1024];
+    if(args[1] == NULL || args[1][0] == '~'){
+        char* home = (char*)HOME_DIR();
+        if(!home){
+            fprintf(stderr, "Home directory not set to ENVIRONMENT\n");
+            return 0;
         }
+        if(args[1] == NULL || args[1][1] == '\0'){
+            strncpy(path, home, sizeof(path));
+        } else{
+            snprintf(path, sizeof(path), "%s%s", home, args[1]+1);
+        }
+        if(chdir(path) != 0) perror("Penguin");
+    } else{
+        if(chdir(args[1]) != 0) perror("Penguin");
     }
     return 1;
 }
@@ -68,16 +45,16 @@ int sh_help(char **args)
     printf("Type the command need to execute with it's specified arguments and hit Enter\n");
     printf("The following are builtin commands: \n");
 
-    for(int i = 0; i < sh_num_of_builtins(); i++){
-        printf(" --%s\n", builtin_cmd[i]);
+    for(int i = 0; i < sh_num_of_builtins; i++){
+        printf(" %s\n", builtin_cmd[i]);
     }
 
-    printf("Use the man command for information on other programs\n");
+    //printf("Use the man command for information on other programs\n");
     return 1;
 }
 
 int sh_exit(char **args){
-    return 0;
+    return -1;
 }
 
 int sh_execute(char **args)
@@ -85,7 +62,7 @@ int sh_execute(char **args)
     if(args[0] == NULL){
         return 0;
     }
-    for(int i = 0; i < sh_num_of_builtins(); i++){
+    for(int i = 0; i < sh_num_of_builtins; i++){
         if(strcmp(args[0], builtin_cmd[i]) == 0){
             return (*builtin_func[i])(args);
         }
@@ -106,11 +83,10 @@ void loop_shell(void)
 
         free(line);
         free(args);
-    } while(status);
+        if(status == -1) exit(0);
+    } while(true);
 }
 
-// read the lines from the stdin buffer and return the buffer until End of File(EOF)
-//
 char* sh_read_line(void)
 {
     unsigned int buffer_size = STDIN_BUFFER_SIZE;
@@ -122,30 +98,29 @@ char* sh_read_line(void)
         fprintf(stderr, "Penguin: Error Creating Buffer\n");
         exit(EXIT_FAILURE);
     }
-    while(1){
+    while(true){
         c = getchar();
 
         if(c == EOF || c == '\n'){
             buffer[position] = '\0';
-            return buffer;
+            break;
         } else{
             buffer[position] = c;
         }
         position++;
         
         if(position >= buffer_size){
-            buffer_size += STDIN_BUFFER_SIZE >> 2;
+            buffer_size += (STDIN_BUFFER_SIZE >> 1);
             buffer = realloc(buffer, buffer_size);
             if(!buffer){
-                fprintf(stderr, "Penguin: Buffer Exceeded!!\nCan't Allocate More Buffer\n");
+                fprintf(stderr, "Error: Problem allocating more buffer...\n");
                 exit(EXIT_FAILURE);
             }
-        }        
+        }
     }
+    return buffer;
 }
 
-// Split the token(each word) as command and arguments using the return function of sh_read_line
-// 
 char** sh_split_line(char* line)
 {
     int buffer_size = SH_SPLIT_LINE_BUFSIZE, position = 0;
@@ -161,7 +136,7 @@ char** sh_split_line(char* line)
         token_buffer[position] = token;
         position++;
         if(position >= buffer_size){
-            buffer_size += SH_SPLIT_LINE_BUFSIZE >>2;
+            buffer_size += SH_SPLIT_LINE_BUFSIZE >>1;
             token_buffer = realloc(token_buffer, buffer_size * sizeof(char*));
             if(!token_buffer){
                 fprintf(stdin, "Penguin: Error realloc the token_buffer.\n");
