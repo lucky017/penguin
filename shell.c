@@ -18,27 +18,6 @@ int (*builtin_func[]) (char **) = {
     &sh_exit
 };
 
-int sh_cd(char **args)
-{
-    char path[1024];
-    if(args[1] == NULL || args[1][0] == '~'){
-        char* home = (char*)HOME_DIR();
-        if(!home){
-            fprintf(stderr, "Home directory not set to ENVIRONMENT\n");
-            return 0;
-        }
-        if(args[1] == NULL || args[1][1] == '\0'){
-            strncpy(path, home, sizeof(path));
-        } else{
-            snprintf(path, sizeof(path), "%s%s", home, args[1]+1);
-        }
-        if(chdir(path) != 0) perror("Penguin");
-    } else{
-        if(chdir(args[1]) != 0) perror("Penguin");
-    }
-    return 1;
-}
-
 int sh_help(char **args)
 {
     printf("Lucky - The Author of Shell Penguin\n");
@@ -84,7 +63,7 @@ void loop_shell(void)
         free(line);
         free(args);
         if(status == -1) exit(0);
-    } while(true);
+    }while(1);
 }
 
 char* sh_read_line(void)
@@ -98,7 +77,7 @@ char* sh_read_line(void)
         fprintf(stderr, "Penguin: Error Creating Buffer\n");
         exit(EXIT_FAILURE);
     }
-    while(true){
+    while(1){
         c = getchar();
 
         if(c == EOF || c == '\n'){
@@ -158,6 +137,8 @@ int sh_launch(char **args)
     if(pid == 0){
         if(execvp(args[0], args) == -1)
             perror("Error Child Process\n");
+        printf("Printing...\n");
+        fflush(stdout);
         exit(EXIT_FAILURE);
     } else if(pid < 0){
         perror("Error Process id is less than zero\n");
