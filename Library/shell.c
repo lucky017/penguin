@@ -1,9 +1,5 @@
 
-#include "shell.h"
-
-const char* HOME_DIR(){
-    return getenv(ENV_HOME);
-}
+#include "../Include/shell.h"
 
 char* builtin_cmd[] = {
     "cd",
@@ -139,7 +135,7 @@ int sh_launch(char **args)
             perror("Error Child Process\n");
         printf("Printing...\n");
         fflush(stdout);
-        exit(EXIT_FAILURE);
+        exit(EXIT_SUCCESS);
     } else if(pid < 0){
         perror("Error Process id is less than zero\n");
     } else{
