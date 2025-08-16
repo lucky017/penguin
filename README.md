@@ -26,3 +26,23 @@ Compile and Run the executable (penguin):
 make compile
 make run  or ./penguin
 ```
+---
+
+### Usage
+
+Once inside Penguin Shell, you can type commands like:
+```bash
+ls   - to list the files and directories 
+cd   - to change the current working directory
+exit - to exit the shell
+```
+You can use the special characters like:
+```bash
+.   - specifies the current working directory
+..  - specifies the parent directory
+```
+--- 
+
+### Notes
+- Requires gcc and make.
+- Tested on Linux (POSIX-compliant systems).
