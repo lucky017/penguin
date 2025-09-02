@@ -22,5 +22,6 @@ int sh_execute(char** arguments);
 int sh_launch(char **args);
 
 int sh_cd(char** args);
+int sh_ls(char** args);
 int sh_help(char** args);
 int sh_exit(char** args);

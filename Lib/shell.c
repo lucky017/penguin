@@ -3,6 +3,7 @@
 
 char* builtin_cmd[] = {
     "cd",
+    "ls",
     "help",
     "exit"
 };
@@ -10,27 +11,10 @@ char* builtin_cmd[] = {
 const size_t sh_num_of_builtins = (sizeof(builtin_cmd)/sizeof(char*));
 int (*builtin_func[]) (char **) = {
     &sh_cd,
+    &sh_ls,
     &sh_help,
     &sh_exit
 };
-
-int sh_help(char **args)
-{
-    printf("Lucky - The Author of Shell Penguin\n");
-    printf("Type the command need to execute with it's specified arguments and hit Enter\n");
-    printf("The following are builtin commands: \n");
-
-    for(int i = 0; i < sh_num_of_builtins; i++){
-        printf(" %s\n", builtin_cmd[i]);
-    }
-
-    //printf("Use the man command for information on other programs\n");
-    return 1;
-}
-
-int sh_exit(char **args){
-    return -1;
-}
 
 int sh_execute(char **args)
 {
@@ -130,6 +114,9 @@ int sh_launch(char **args)
     int status = 0;
 
     pid = fork();
+    printf("Printing...\n");
+    fflush(stdout);
+
     if(pid == 0){
         if(execvp(args[0], args) == -1)
             perror("Error Child Process\n");

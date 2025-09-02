@@ -1,5 +1,5 @@
 
 compile:
-	gcc src/* Library/* -Wall -o penguin
+	gcc src/* Lib/* -Wall -o penguin
 run:
 	./penguin
