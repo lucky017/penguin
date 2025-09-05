@@ -1,20 +1,22 @@
 
 #include "../Include/shell.h"
 
-char* builtin_cmd[] = {
-    "cd",
-    "ls",
-    "help",
-    "exit"
-};
+extern char* builtin_cmd[]; 
+extern char* defined_cmd[];
+extern const unsigned long sh_num_of_builtins;
+extern const unsigned long num_of_defined_cmd;
 
-const size_t sh_num_of_builtins = (sizeof(builtin_cmd)/sizeof(char*));
 int (*builtin_func[]) (char **) = {
     &sh_cd,
     &sh_ls,
+    &sh_cat,
     &sh_help,
     &sh_exit
 };
+void (*defined_func[])() = {
+    &flush
+};
+
 
 int sh_execute(char **args)
 {
@@ -24,6 +26,13 @@ int sh_execute(char **args)
     for(int i = 0; i < sh_num_of_builtins; i++){
         if(strcmp(args[0], builtin_cmd[i]) == 0){
             return (*builtin_func[i])(args);
+        }
+    }
+    for(int i=0; i<num_of_defined_cmd; ++i)
+    {
+        if(strcmp(args[0], defined_cmd[i]) == 0){
+            defined_func[i]();
+            return 0;
         }
     }
     return sh_launch(args);

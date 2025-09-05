@@ -1,4 +1,7 @@
 
+#ifndef SHELL_H
+#define SHELL_H
+
 #include<sys/wait.h>
 #include<unistd.h>
 #include<stdlib.h>
@@ -21,7 +24,15 @@ char **sh_split_line(char* line);
 int sh_execute(char** arguments);
 int sh_launch(char **args);
 
+// BUILT-IN
 int sh_cd(char** args);
 int sh_ls(char** args);
+int sh_cat(char** args);
 int sh_help(char** args);
 int sh_exit(char** args);
+
+// DEFINED
+void flush();
+
+
+#endif

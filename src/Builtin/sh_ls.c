@@ -1,5 +1,5 @@
 
-#include "../Include/getpath.h"
+#include "../../Include/getpath.h"
 #include<dirent.h>
 
 char** listdir(char *dir)
@@ -70,7 +70,7 @@ int sh_ls(char **args)
     path->cstring_to_path(path, path_buffer, getcwd__());
     char **list = listdir(path->posix_path);
     print(list);
-    free(list);
+    destructor(path);
     return 0;
 }
 

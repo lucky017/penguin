@@ -1,5 +1,6 @@
 
 compile:
-	gcc src/* Lib/* -Wall -o penguin
+	make Lib/.
+	gcc Main.c Lib/*.o src/*.c -Wall -o penguin
 run:
 	./penguin

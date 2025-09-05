@@ -24,6 +24,15 @@ path* constructor()
     return self;
 }
 
+void destructor(struct Path* obj)
+{
+    if(obj == NULL){
+        fputs("[Error freeing Memory]\nThe pointer to Path object is NULL.", stderr);
+        return;
+    }
+    free(obj);
+}
+
 void copy_path(path *p, const char *src_path)
 {
     snprintf(p->posix_path, MAX_BYTES, "%s", src_path);

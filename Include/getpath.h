@@ -11,10 +11,10 @@
 
 struct Path
 {
-    void (*copy_path) (struct Path *, const char*);
-    void (*cstring_to_path) (struct Path *, const char *, char* );
-    unsigned long(*path_size) (struct Path *);
-    void (*print_path)   (struct Path *);
+    void (*copy_path) (struct Path *obj, const char *src);
+    void (*cstring_to_path) (struct Path *obj, const char *arg, char *def_path);
+    unsigned long(*path_size) (struct Path *obj);
+    void (*print_path)   (struct Path *obj);
 
     char posix_path[MAX_BYTES];
 };
@@ -22,6 +22,7 @@ struct Path
 char* getcwd__();
 char* gethome__();
 struct Path* constructor();
-int string_compare(const char*, const char*);
+void destructor(struct Path *obj);
+int string_compare(const char *path1, const char *path2);
 
 #endif
